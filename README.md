@@ -1,87 +1,95 @@
-# cAdvisorMonitor
+# Server Monitoring and Metrics Collection Project
 
-This repository contains the configuration for a monitoring stack using Prometheus, cAdvisor, Node Exporter, Alertmanager, and Grafana. The setup collects and monitors metrics from Docker containers and the host system, sending alerts to Slack when certain conditions are met and providing a visualization dashboard.
+This project consists of two Docker Compose files that work together to gather and monitor server metrics. One of the Compose files is responsible for gathering data from the server, while the other handles monitoring and displaying the data using Prometheus and Grafana.
+
+## Project Structure
+
+- `docker-compose.metrics.yml`: This file configures services to collect server metrics using `node-exporter` and `cAdvisor`.
+- `docker-compose.monitoring.yml`: This file configures services to monitor and display the collected data using `Prometheus`, `Grafana`, and `nginx`.
 
 ## Prerequisites
 
-- Docker
-- Docker Compose
+Before running this project, make sure you have the following installed:
 
-## Services
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-- **Prometheus**: Collects and stores metrics.
-- **cAdvisor**: Monitors container metrics.
-- **Node Exporter**: Monitors host system metrics.
-- **Alertmanager**: Manages alerts and sends notifications to Slack.
-- **Grafana**: Visualizes the collected metrics.
+## Setup and Usage
 
-## Configuration
+### 1. Clone the repository
 
-### Prometheus
+```bash
+git clone <repository-url>
+cd <repository-directory>
+```
 
-Prometheus is configured to scrape metrics from cAdvisor and Node Exporter every 2 minutes. Alerts are defined to check for high memory and CPU usage.
+## Configure environment variables
+Ensure that you have a .env file in the root directory with the following variables:
+```bash
+GF_SECURITY_ADMIN_USER=your_admin_username
+GF_SECURITY_ADMIN_PASSWORD=your_admin_password
+```
+### 3. Run the metrics collection stack
 
-### Alertmanager
+First, run the `docker-compose.metrics.yml` file to start collecting server metrics:
 
-Alertmanager is configured to send notifications to Slack when alerts are triggered.
+```bash
+docker-compose -f docker-compose.metrics.yml up -d
+```
+This will start the following services:
 
-### Grafana
+- node-exporter: Exposes hardware and OS metrics.
+- cAdvisor: Collects container metrics.
 
-Grafana is configured to provide a web-based dashboard for visualizing the metrics collected by Prometheus.
+### 4. Run the monitoring stack
 
-## Setup Instructions
+Next, run the `docker-compose.monitoring.yml` file to start monitoring and visualizing the collected data:
 
-1. **Clone the repository:**
+```bash
+docker-compose -f docker-compose.monitoring.yml up -d
+```
 
-    ```sh
-    git clone https://git.manavira.com/bhosseini/cadvisormonitor
-    cd cAdvisorMonitor
-    ```
+### 5. Access Grafana Dashboard
 
-2. **Create and Configure `.env` file:**
+Once everything is up and running, you can access Grafana by navigating to:
 
-    Create a file named `.env` in the root directory of the project and add your Slack Webhook URL and Grafana credentials:
+```
+http://<your-server-ip>:7012
+```
+### 6. Stopping the Services
 
-    ```env
-    SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
-    GF_SECURITY_ADMIN_USER=admin
-    GF_SECURITY_ADMIN_PASSWORD=admin
-    ```
+To stop the services, use the following commands:
 
-3. **Start the services:**
+```bash
+docker-compose -f docker-compose.metrics.yml down
+docker-compose -f docker-compose.monitoring.yml down
+```
 
-    Use Docker Compose to start the services:
+### 7. Customizing Configuration
 
-    ```sh
-    docker-compose up -d
-    ```
+- **Prometheus Configuration**: You can customize the Prometheus configuration by editing the `prometheus.yml` file located in the root directory.
+- **Grafana Dashboards**: Grafana dashboards can be customized and new ones can be created through the Grafana UI.
 
-## Accessing Services
 
-### Prometheus
+### Troubleshooting
 
-- URL: `http://localhost:7010`
+If you encounter any issues, ensure that the required ports (9100, 7011, 7010, 7012) are not being used by other applications. You can also check the logs of individual services by using:
 
-### cAdvisor
+```bash
+docker-compose -f <compose-file-name> logs <service-name>
+```
+## License
 
-- URL: `http://localhost:7011`
+This project is licensed under the MIT License - see the `LICENSE` file for details.
 
-### Grafana
+## Contributing
 
-- URL: `http://localhost:3000`
-- Default Username: `admin`
-- Default Password: `admin`
+Feel free to fork this project and submit pull requests. Any contributions are welcome!
 
-## Alerting Rules
+## Acknowledgments
 
-### High Container Memory Usage
+- Prometheus
+- Grafana
+- node-exporter
+- cAdvisor
 
-Triggers if any container's memory usage exceeds 30GB for more than 1 minute.
-
-### High Server Memory Usage
-
-Triggers if the server's memory usage exceeds 25GB for more than 1 minute.
-
-### High CPU Usage
-
-Triggers if the server's CPU usage exceeds 80% for more than 1 minute.

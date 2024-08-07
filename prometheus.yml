@@ -1,21 +1,8 @@
 global:
   scrape_interval: 2m
-  evaluation_interval: 2m  
-
-rule_files:
-  - "/etc/prometheus/alerts.yml"
-
-alerting:
-  alertmanagers:
-  - static_configs:
-    - targets:
-      - 'alertmanager:9093'
+  evaluation_interval: 2m
 
 scrape_configs:
-  - job_name: 'cadvisor'
+  - job_name: 'metric-name'
     static_configs:
-      - targets: ['cadvisor:8080']
-
-  - job_name: 'node_exporter'
-    static_configs:
-      - targets: ['node_exporter:9100']
+      - targets: ['ip:9216']
